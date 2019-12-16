@@ -1,0 +1,138 @@
+{
+  "name": "super-stock",
+  "version": "1.0.9",
+  "author": "flynn.yu <flynn.yu@ucloud.cn>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yujintang/vscode-stock.git"
+  },
+  "license": "MIT",
+  "publisher": "yujintang",
+  "engines": {
+    "vscode": "^1.41.0"
+  },
+  "keywords": [
+    "stock",
+    "money",
+    "股票"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:super-stock-favorite",
+    "onCommand:super-stock-favorite.order",
+    "onCommand:super-stock-favorite.add",
+    "onCommand:super-stock-favorite.item.setHighWarn",
+    "onCommand:super-stock-favorite.item.setLowWarn",
+    "onCommand:super-stock-favorite.item.remove"
+  ],
+  "main": "./out/extension.js",
+  "icon": "media/icon.png",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "tslint -p ./",
+    "lint:fix": "tslint -p ./ --fix",
+    "watch": "tsc -watch -p ./"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "super-stock",
+      "properties": {
+        "super-stock.favorite": {
+          "type": "object",
+          "default": {
+            "sh000001": [
+              "-",
+              "-"
+            ]
+          },
+          "description": "your favorite symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
+        },
+        "super-stock.interval": {
+          "type": "number",
+          "default": 2,
+          "description": "refresh symbol price how many second, at least 2"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "super-stock-favorite",
+          "name": "FAVORITE STOCKS"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "super-stock-favorite.order",
+        "title": "order",
+        "icon": {
+          "light": "media/light/order.svg",
+          "dark": "media/dark/order.svg"
+        }
+      },
+      {
+        "command": "super-stock-favorite.add",
+        "title": "add",
+        "icon": {
+          "light": "media/light/add.svg",
+          "dark": "media/dark/add.svg"
+        }
+      },
+      {
+        "command": "super-stock-favorite.item.setHighWarn",
+        "title": "Set High Warn"
+      },
+      {
+        "command": "super-stock-favorite.item.setLowWarn",
+        "title": "Set Low Warn"
+      },
+      {
+        "command": "super-stock-favorite.item.remove",
+        "title": "Delete"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "super-stock-favorite.order",
+          "when": "view == super-stock-favorite",
+          "group": "navigation"
+        },
+        {
+          "command": "super-stock-favorite.add",
+          "when": "view == super-stock-favorite",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "super-stock-favorite.item.setHighWarn",
+          "when": "view == super-stock-favorite"
+        },
+        {
+          "command": "super-stock-favorite.item.setLowWarn",
+          "when": "view == super-stock-favorite"
+        },
+        {
+          "command": "super-stock-favorite.item.remove",
+          "when": "view == super-stock-favorite"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^10.14.17",
+    "@types/vscode": "^1.41.0",
+    "tslint": "^5.16.0",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "iconv-lite": "^0.5.0",
+    "string-width": "^4.2.0"
+  }
+}
