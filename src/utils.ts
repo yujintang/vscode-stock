@@ -1,13 +1,35 @@
+import { QuickPickItem } from 'vscode';
 import * as https from 'https';
 import * as iconv from 'iconv-lite';
 import * as stringWidth from 'string-width';
 import { isArray } from 'util';
-import { Stock, StockConfig } from './resource';
+import { Stock, StockConfig, Resource } from './resource';
+
+const stockMarket:{[key:string]:QuickPickItem} = {
+  '沪股':{
+    label: '沪股',
+    detail: 'sh'
+  },
+  '深股':{
+    label: '深股',
+    detail: 'sz'
+  },
+  '港股':{
+    label: '港股',
+    detail: 'hk'
+  },
+  '美股':{
+    label: '美股',
+    detail: 'gb_'
+  }
+};
+
+export { stockMarket };
 
 export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
 
   const url = 'https://hq.sinajs.cn/list=' + Object.keys(stockConfig).join(',');
-  
+
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       let chunks: Array<Buffer> = [];
@@ -30,26 +52,61 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             const params = splitData[i].split('="')[1].split(',');
             if (params.length > 1) {
               let StockConfig = stockConfig[code];
-              if(!isArray(StockConfig)){StockConfig = ['-', '-']; }
-              if(StockConfig.length < 2) {StockConfig.concat(['-', '-']);}
-              
-              resultArr.push(new Stock({
-                name: params[0],
-                code,
-                lowWarn: new Number(StockConfig[0]).toFixed(2),
-                highWarn: new Number(StockConfig[1]).toFixed(2),
-                open: new Number(params[1]).toFixed(2),
-                lastClose: new Number(params[2]).toFixed(2),
-                now: new Number(params[3]).toFixed(2),
-                high: new Number(params[4]).toFixed(2),
-                low: new Number(params[5]).toFixed(2),
-                highStop: new Number(+params[2] * 1.1).toFixed(2),
-                lowStop: new Number(+params[2] * 0.9).toFixed(2),
-                changeAmount: new Number(+params[3] - +params[2]).toFixed(2),
-                changeRate: new Number((+params[3] - +params[2])/+params[2]*100).toFixed(2),
-              })
-              );
-            }
+              if (!isArray(StockConfig)) { StockConfig = ['-', '-']; }
+              if (StockConfig.length < 2) { StockConfig.concat(['-', '-']); }
+
+              let resultStock: StockInfo|undefined;
+              if(/^(sh|sz)/.test(code)){
+                resultStock = {
+                  name: params[0],
+                  code,
+                  unit: 'cny',
+                  lowWarn: new Number(StockConfig[0]).toFixed(2),
+                  highWarn: new Number(StockConfig[1]).toFixed(2),
+                  open: new Number(params[1]).toFixed(2),
+                  lastClose: new Number(params[2]).toFixed(2),
+                  now: new Number(params[3]).toFixed(2),
+                  high: new Number(params[4]).toFixed(2),
+                  low: new Number(params[5]).toFixed(2),
+                };
+              }else if (/^hk/.test(code)){
+                resultStock = {
+                  name: params[1],
+                  code,
+                  unit: 'hkd',
+                  lowWarn: new Number(StockConfig[0]).toFixed(2),
+                  highWarn: new Number(StockConfig[1]).toFixed(2),
+                  open: new Number(params[2]).toFixed(2),
+                  lastClose: new Number(params[3]).toFixed(2),
+                  now: new Number(params[6]).toFixed(2),
+                  high: new Number(params[4]).toFixed(2),
+                  low: new Number(params[5]).toFixed(2),
+                };
+              }else if (/^gb_/.test(code)){
+                resultStock = {
+                  name: params[0],
+                  code,
+                  unit: 'usd',
+                  lowWarn: new Number(StockConfig[0]).toFixed(2),
+                  highWarn: new Number(StockConfig[1]).toFixed(2),
+                  open: new Number(params[5]).toFixed(2),
+                  lastClose: new Number(params[26]).toFixed(2),
+                  now: new Number(params[1]).toFixed(2),
+                  high: new Number(params[6]).toFixed(2),
+                  low: new Number(params[7]).toFixed(2),
+                };
+              }
+              if(resultStock !== undefined){
+                const {lastClose, now } = resultStock;
+                const changeAmount = Math.abs(+now - +lastClose);
+                const changeSign  = (+now - +lastClose) >=0 ? '+': '-';
+                resultStock.highStop = new Number(+lastClose * 1.1).toFixed(2);
+                resultStock.lowStop = new Number(+lastClose * 0.9).toFixed(2);
+                resultStock.changeAmount = changeSign + new Number(changeAmount).toFixed(2),
+                resultStock.changeRate = changeSign + new Number((changeAmount) / +lastClose * 100).toFixed(2),
+                resultArr.push(new Stock(resultStock));
+              }
+            }// valid stock code
           }
           resolve(resultArr);
         } else {
@@ -68,16 +125,20 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
  * @param left 原字符串是否靠左边
  */
 export function fillString(source: string, length: number, left = true): string {
-  const addString = ' '.repeat(length - stringWidth(source));
-  if (left) {
-    return source + addString;
-  }
-  return addString + source;
+      while(stringWidth(source) >= length){
+        source = source.slice(0, source.length - 1);
+      }
+    const addString = '  '.repeat(length - stringWidth(source));
+    if (left) {
+      return source + addString;
+    }
+    return addString + source;
 }
 
 export interface StockInfo {
   name: string;
   code: string;
+  unit: string;
   lowWarn: string;
   highWarn: string;
   open: string;
@@ -85,8 +146,8 @@ export interface StockInfo {
   now: string;
   high: string;
   low: string;
-  highStop: string;
-  lowStop: string;
-  changeAmount: string;
-  changeRate: string;
+  highStop?: string;
+  lowStop?: string;
+  changeAmount?: string;
+  changeRate?: string;
 }

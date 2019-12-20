@@ -2,7 +2,7 @@
 vscode 股票插件
 
 ### 1. 添加股票代码到自选
-> 股票代码要标准, 前面需含有前缀 sh, sz, hk ...内容。
+> 股票代码要标准, 前面需含有前缀 sh, sz, hk gb_ 等内容。
 
 ![](https://github.com/yujintang/imageHosting/blob/master/stockAdd.gif?raw=true)
 

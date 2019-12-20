@@ -34,9 +34,8 @@ export class Resource {
   async getFavorites(order: number): Promise<Array<Stock>> {
     const config = vscode.workspace.getConfiguration().get('super-stock.favorite',{});
     const sinaStock = await sinaApi(config);
-    return sinaStock.sort((a, b)=>{
-    const bool = +a.info.changeRate >= +b.info.changeRate;
-    return bool ? order * 1: order * -1;
+    return sinaStock.sort(({info:{changeRate:a=0 }}, {info:{changeRate: b=0}})=>{
+    return (+a >= +b) ? order * 1: order * -1;
     });
   }
 }
@@ -48,12 +47,13 @@ export interface StockConfig{
 export class Stock extends vscode.TreeItem {
   info: StockInfo;
   constructor(info: StockInfo) {
-    super(`${fillString(info.name, 10)} ${fillString(info.changeRate + '%', 10, false)} ${fillString(info.now, 12, false)}`);
+    super(`${fillString(info.name, 10)} ${fillString(info.changeRate + '%', 8, false)} ${fillString(info.now, 10, false)}`);
     this.info = info;
 
     this.tooltip = `
  名字:       ${info.name}
  代码:       ${info.code}
+ 单位:       ${info.unit}
  ---------------------
  现价:       ${info.now}
  涨跌幅:   ${info.changeRate}%

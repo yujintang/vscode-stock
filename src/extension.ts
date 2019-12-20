@@ -1,8 +1,8 @@
-import {ExtensionContext, commands, window, workspace } from 'vscode';
+import { ExtensionContext, commands, window, workspace } from 'vscode';
 
 import { StockProvider } from './favorite';
 import { Resource } from './resource';
-import { sinaApi } from './utils';
+import { sinaApi, stockMarket } from './utils';
 
 export function activate(context: ExtensionContext) {
 
@@ -23,27 +23,38 @@ export function activate(context: ExtensionContext) {
       nodeFavoriteProvider.changeOrder();
     }),
     commands.registerCommand('super-stock-favorite.add', async () => {
-      const res = await window.showInputBox({
-        value: 'sh000001',
-        valueSelection: [0, -1],
-        prompt: 'Add Stock To Favorite:',
-        placeHolder: 'Add Stock To Favorite',
-        validateInput: (stockCode: string) => {
-          if (/^[A-Za-z]+/.test(stockCode)) {
-            return null;
-          } else {
-            return 'Stock Code Error, Please Input Current Code!';
+      const quickPick = await window.createQuickPick();
+      quickPick.items = Object.keys(stockMarket).map(label => ({ label }));
+      quickPick.show();
+      quickPick.onDidChangeSelection(async (market) => {
+
+        const {label, detail } = stockMarket[market[0].label];
+        
+        const res =await window.showInputBox({
+          value: detail,
+          valueSelection: [5, -1],
+          prompt: 'Add Stock To Favorite:',
+          placeHolder: 'Add Stock To Favorite',
+          validateInput: (stockCode: string) => {
+            const regExp = new RegExp(`^${detail}`);
+            if (regExp.test(stockCode)) {
+              return null;
+            } else {
+              return `${label} Stock Code Input Error, Must Start with【 ${detail} 】!`;
+            }
+          },
+        });
+
+        if (res !== undefined) {
+          const newStock = { [`${res}`]: ['-', '-'] };
+          
+          const [stockInfo] = await sinaApi(newStock);
+          if (stockInfo) {
+            resource.updateConfig(newStock);
+            nodeFavoriteProvider._onDidChangeTreeData.fire();
           }
-        },
-      });
-      if (res !== undefined) {
-        const newStock = { [`${res}`]: ['-', '-'] };
-        const [stockInfo] = await sinaApi(newStock);
-        if (stockInfo) {
-          resource.updateConfig(newStock);
-          nodeFavoriteProvider._onDidChangeTreeData.fire();
         }
-      }
+      });
     }),
     commands.registerCommand('super-stock-favorite.item.setHighWarn', async (stock) => {
       const { info } = stock;
@@ -78,7 +89,7 @@ export function activate(context: ExtensionContext) {
     commands.registerCommand('super-stock-favorite.item.remove', ({ info }) => {
       resource.removeConfig(info.code);
       nodeFavoriteProvider._onDidChangeTreeData.fire();
-    })
-
-  );
+    }),
+  
+  ); // subscriptions
 }
