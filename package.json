@@ -14,7 +14,10 @@
   "keywords": [
     "stock",
     "money",
-    "股票"
+    "digital currency",
+    "digiccy",
+    "股票",
+    "数字货币"
   ],
   "categories": [
     "Other"
@@ -51,6 +54,16 @@
           },
           "description": "your favorite symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
         },
+        "super-stock.favorite-digiccy": {
+          "type": "object",
+          "default": {
+            "btcusdt": [
+              "-",
+              "-"
+            ]
+          },
+          "description": "your favorite digiccy symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
+        },
         "super-stock.interval": {
           "type": "number",
           "default": 2,
@@ -63,6 +76,10 @@
         {
           "id": "super-stock-favorite",
           "name": "FAVORITE STOCKS"
+        },
+        {
+          "id": "super-stock-favorite-digiccy",
+          "name": "FAVORITE DIGICCY"
         }
       ]
     },
@@ -94,6 +111,34 @@
       {
         "command": "super-stock-favorite.item.remove",
         "title": "删除该股票"
+      },
+      {
+        "command": "super-stock-favorite-digiccy.order",
+        "title": "order",
+        "icon": {
+          "light": "media/light/order.svg",
+          "dark": "media/dark/order.svg"
+        }
+      },
+      {
+        "command": "super-stock-favorite-digiccy.add",
+        "title": "add",
+        "icon": {
+          "light": "media/light/add.svg",
+          "dark": "media/dark/add.svg"
+        }
+      },
+      {
+        "command": "super-stock-favorite-digiccy.item.setHighWarn",
+        "title": "设置高报警价"
+      },
+      {
+        "command": "super-stock-favorite-digiccy.item.setLowWarn",
+        "title": "设置低报警价"
+      },
+      {
+        "command": "super-stock-favorite-digiccy.item.remove",
+        "title": "删除该交易对"
       }
     ],
     "menus": {
@@ -106,6 +151,16 @@
         {
           "command": "super-stock-favorite.add",
           "when": "view == super-stock-favorite",
+          "group": "navigation"
+        },
+        {
+          "command": "super-stock-favorite-digiccy.order",
+          "when": "view == super-stock-favorite-digiccy",
+          "group": "navigation"
+        },
+        {
+          "command": "super-stock-favorite-digiccy.add",
+          "when": "view == super-stock-favorite-digiccy",
           "group": "navigation"
         }
       ],
@@ -121,6 +176,18 @@
         {
           "command": "super-stock-favorite.item.remove",
           "when": "view == super-stock-favorite"
+        },
+        {
+          "command": "super-stock-favorite-digiccy.item.setHighWarn",
+          "when": "view == super-stock-favorite-digiccy"
+        },
+        {
+          "command": "super-stock-favorite-digiccy.item.setLowWarn",
+          "when": "view == super-stock-favorite-digiccy"
+        },
+        {
+          "command": "super-stock-favorite-digiccy.item.remove",
+          "when": "view == super-stock-favorite-digiccy"
         }
       ]
     }

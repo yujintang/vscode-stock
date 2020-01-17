@@ -26,10 +26,7 @@ const stockMarket:{[key:string]:QuickPickItem} = {
 
 export { stockMarket };
 
-export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
-
-  const url = 'https://hq.sinajs.cn/list=' + Object.keys(stockConfig).join(',');
-
+const httpRequest = async (url: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       let chunks: Array<Buffer> = [];
@@ -42,6 +39,24 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
           const matchCharset = contentType.match(/(?:charset=)(\w+)/) || [];
           // 转编码，保持跟响应一致
           let body = iconv.decode(buff, matchCharset[1] || 'utf8');
+          resolve(body);
+        } else {
+          reject('网络请求错误!');
+        }
+      });
+    });
+  });
+};
+
+export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
+
+  const url = 'https://hq.sinajs.cn/list=' + Object.keys(stockConfig).join(',');
+
+  return new Promise(async (resolve, reject) => {
+    const body = await httpRequest(url)
+    .catch(e=>{
+      reject(e.message);
+    });
           if (/FAILED/.test(body)) {
             return reject(`fail: error Stock code in ${Object.keys(stockConfig)}, please delete error Stock code`);
           }
@@ -109,12 +124,7 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             }// valid stock code
           }
           resolve(resultArr);
-        } else {
-          reject('fail: ' + res.statusCode);
-        }
       });
-    });
-  });
 }
 
 
