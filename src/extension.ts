@@ -33,26 +33,35 @@ export function activate(context: ExtensionContext) {
         const res =await window.showInputBox({
           value: detail,
           valueSelection: [5, -1],
-          prompt: 'Add Stock To Favorite:',
+          prompt: `添加${label}到自选, 使用【,】添加多个！`,
           placeHolder: 'Add Stock To Favorite',
           validateInput: (stockCode: string) => {
-            const regExp = new RegExp(`^${detail}`);
-            if (regExp.test(stockCode)) {
-              return null;
-            } else {
-              return `${label} Stock Code Input Error, Must Start with【 ${detail} 】!`;
+            const codeArray = stockCode.split(/[\W]/);
+            for(const stock of codeArray){
+              if(stock !== ''){
+                if(!(new RegExp(`^${detail}\\w+`)).test(stock)){
+                  return `${label}代码输入错误`;
+                }
+              }
             }
           },
         });
 
         if (res !== undefined) {
-          const newStock = { [`${res}`]: ['-', '-'] };
-          
-          const [stockInfo] = await sinaApi(newStock);
-          if (stockInfo) {
-            resource.updateConfig(newStock);
-            nodeFavoriteProvider._onDidChangeTreeData.fire();
+          const codeArray = res.split(/[\W]/);
+          const newStock:{[key:string]: Array<string>} = {};
+          for(const stock of codeArray){
+            if(stock !== ''){
+              newStock[`${stock}`] =  ['-', '-'];
+            }
           }
+          const result = await sinaApi(newStock);
+          result.forEach(stockInfo=>{
+            if (stockInfo) {
+              resource.updateConfig(newStock);
+              nodeFavoriteProvider._onDidChangeTreeData.fire();
+            }
+          });
         }
       });
     }),
@@ -61,10 +70,10 @@ export function activate(context: ExtensionContext) {
       const res = await window.showInputBox({
         value: isNaN(+info.highWarn) ? info.now : info.highWarn,
         valueSelection: [0, -1],
-        prompt: 'Set Stock HighWarn Price:',
-        placeHolder: 'Set Stock HighWarn Price',
+        prompt: '设置高报警价:',
+        placeHolder: '设置高报警价',
         validateInput: (text: string) => {
-          return isNaN(+text) || +text <= +info.now ? `Stock HighWarn Price Must Greater Than: ${info.now}` : null;
+          return isNaN(+text) || +text <= +info.now ? `高报警价必须大于现价: ${info.now}` : null;
         },
       });
       if (res !== undefined) {
@@ -76,10 +85,10 @@ export function activate(context: ExtensionContext) {
       const res = await window.showInputBox({
         value: isNaN(+info.lowWarn) ? info.now : info.lowWarn,
         valueSelection: [0, -1],
-        prompt: 'Set Stock LowWarn Price:',
-        placeHolder: 'Set Stock LowWarn Price',
+        prompt: '设置低报警价:',
+        placeHolder: '设置低报警价',
         validateInput: (text: string) => {
-          return isNaN(+text) || +text >= +info.now ? `Stock LowWarn Price Must Less Than: ${info.now}` : null;
+          return isNaN(+text) || +text >= +info.now ? `低报警价必须小于现价: ${info.now}` : null;
         },
       });
       if (res !== undefined) {

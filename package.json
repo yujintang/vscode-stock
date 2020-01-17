@@ -85,15 +85,15 @@
       },
       {
         "command": "super-stock-favorite.item.setHighWarn",
-        "title": "Set High Warn"
+        "title": "设置高报警价"
       },
       {
         "command": "super-stock-favorite.item.setLowWarn",
-        "title": "Set Low Warn"
+        "title": "设置低报警价"
       },
       {
         "command": "super-stock-favorite.item.remove",
-        "title": "Delete"
+        "title": "删除该股票"
       }
     ],
     "menus": {
