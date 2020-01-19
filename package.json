@@ -1,6 +1,7 @@
 {
   "name": "super-stock",
-  "version": "1.0.9",
+  "version": "1.0.10",
+  "description": "A股｜港股｜美股｜数字货币, 实时查看, 支持高低价报警",
   "author": "flynn.yu <flynn.yu@ucloud.cn>",
   "repository": {
     "type": "git",
@@ -28,7 +29,13 @@
     "onCommand:super-stock-favorite.add",
     "onCommand:super-stock-favorite.item.setHighWarn",
     "onCommand:super-stock-favorite.item.setLowWarn",
-    "onCommand:super-stock-favorite.item.remove"
+    "onCommand:super-stock-favorite.item.remove",
+    "onView:super-stock-favorite",
+    "onCommand:super-stock-favorite-digiccy.order",
+    "onCommand:super-stock-favorite-digiccy.add",
+    "onCommand:super-stock-favorite-digiccy.item.setHighWarn",
+    "onCommand:super-stock-favorite-digiccy.item.setLowWarn",
+    "onCommand:super-stock-favorite-digiccy.item.remove"
   ],
   "main": "./out/extension.js",
   "icon": "media/icon.png",

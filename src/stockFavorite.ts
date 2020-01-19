@@ -10,8 +10,8 @@ export class StockProvider implements TreeDataProvider<Stock>{
   private order: number;
 
 
-  constructor(stockResource: StockResource) {
-    this.resource = stockResource;
+  constructor(resource: StockResource) {
+    this.resource = resource;
     this.order = 1;
   }
 
@@ -53,11 +53,11 @@ export class StockProvider implements TreeDataProvider<Stock>{
           valueSelection: [5, -1],
           prompt: `添加${label}到自选, 使用【,】添加多个！`,
           placeHolder: 'Add Stock To Favorite',
-          validateInput: (stockCode: string) => {
-            const codeArray = stockCode.split(/[\W]/);
-            for(const stock of codeArray){
-              if(stock !== ''){
-                if(!(new RegExp(`^${detail}\\w+`)).test(stock)){
+          validateInput: (inputCode: string) => {
+            const codeArray = inputCode.split(/[\W]/);
+            for(const code of codeArray){
+              if(code !== ''){
+                if(!(new RegExp(`^${detail}\\w+`)).test(code)){
                   return `${label}代码输入错误`;
                 }
               }
