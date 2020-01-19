@@ -47,7 +47,7 @@ export interface DigiccyConfig{
 export class Digiccy extends TreeItem {
   info: DigiccyInfo;
   constructor(info: DigiccyInfo) {
-    super(`${fillString(info.code, 12)} ${fillString(info.changeRate + '%', 8, false)} ${fillString(info.now, 12, false)}`);
+    super(`${fillString(info.code, 10)} ${fillString(info.changeRate + '%', 8, false)} ${fillString(info.now, 12, false)}`);
     this.info = info;
 
     this.tooltip = `

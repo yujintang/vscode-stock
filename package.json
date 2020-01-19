@@ -1,7 +1,7 @@
 {
   "name": "super-stock",
-  "version": "1.0.10",
-  "description": "A股｜港股｜美股｜数字货币, 实时查看, 支持高低价报警",
+  "version": "1.0.12",
+  "description": "A股｜港股｜美股｜数字货币 实时查看行情, 高低价报警提示等内容",
   "author": "flynn.yu <flynn.yu@ucloud.cn>",
   "repository": {
     "type": "git",
