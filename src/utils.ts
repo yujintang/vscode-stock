@@ -3,7 +3,7 @@ import * as https from 'https';
 import * as iconv from 'iconv-lite';
 import * as stringWidth from 'string-width';
 import { isArray } from 'util';
-import { Stock, StockConfig, Resource } from './resource';
+import { Stock, StockConfig, StockResource } from './stockResource';
 
 const stockMarket:{[key:string]:QuickPickItem} = {
   '沪股':{

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { sinaApi, fillString, StockInfo } from './utils';
 
-export class Resource {
+export class StockResource {
   constructor() {
   }
 
