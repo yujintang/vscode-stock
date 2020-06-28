@@ -1,8 +1,8 @@
 {
   "name": "super-stock",
-  "version": "1.0.12",
-  "description": "A股｜港股｜美股｜数字货币 实时查看行情, 高低价报警提示等内容",
-  "author": "flynn.yu <flynn.yu@ucloud.cn>",
+  "version": "1.0.14",
+  "description": "A股｜港股｜美股｜其他 实时查看行情, 高低价报警提示等内容",
+  "author": "yujintang <shanquan54@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/yujintang/vscode-stock.git"
@@ -15,10 +15,7 @@
   "keywords": [
     "stock",
     "money",
-    "digital currency",
-    "digiccy",
-    "股票",
-    "数字货币"
+    "股票"
   ],
   "categories": [
     "Other"
@@ -30,12 +27,7 @@
     "onCommand:super-stock-favorite.item.setHighWarn",
     "onCommand:super-stock-favorite.item.setLowWarn",
     "onCommand:super-stock-favorite.item.remove",
-    "onView:super-stock-favorite",
-    "onCommand:super-stock-favorite-digiccy.order",
-    "onCommand:super-stock-favorite-digiccy.add",
-    "onCommand:super-stock-favorite-digiccy.item.setHighWarn",
-    "onCommand:super-stock-favorite-digiccy.item.setLowWarn",
-    "onCommand:super-stock-favorite-digiccy.item.remove"
+    "onView:super-stock-favorite"
   ],
   "main": "./out/extension.js",
   "icon": "media/icon.png",
@@ -57,19 +49,17 @@
             "sh000001": [
               "-",
               "-"
-            ]
-          },
-          "description": "your favorite symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
-        },
-        "super-stock.favorite-digiccy": {
-          "type": "object",
-          "default": {
-            "btcusdt": [
+            ],
+            "hkHSI": [
               "-",
               "-"
-            ]
+          ],
+          "gb_$dji": [
+              "-",
+              "-"
+          ]
           },
-          "description": "your favorite digiccy symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
+          "description": "your favorite symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
         },
         "super-stock.interval": {
           "type": "number",
@@ -83,10 +73,6 @@
         {
           "id": "super-stock-favorite",
           "name": "FAVORITE STOCKS"
-        },
-        {
-          "id": "super-stock-favorite-digiccy",
-          "name": "FAVORITE DIGICCY"
         }
       ]
     },
@@ -118,34 +104,6 @@
       {
         "command": "super-stock-favorite.item.remove",
         "title": "删除该股票"
-      },
-      {
-        "command": "super-stock-favorite-digiccy.order",
-        "title": "order",
-        "icon": {
-          "light": "media/light/order.svg",
-          "dark": "media/dark/order.svg"
-        }
-      },
-      {
-        "command": "super-stock-favorite-digiccy.add",
-        "title": "add",
-        "icon": {
-          "light": "media/light/add.svg",
-          "dark": "media/dark/add.svg"
-        }
-      },
-      {
-        "command": "super-stock-favorite-digiccy.item.setHighWarn",
-        "title": "设置高报警价"
-      },
-      {
-        "command": "super-stock-favorite-digiccy.item.setLowWarn",
-        "title": "设置低报警价"
-      },
-      {
-        "command": "super-stock-favorite-digiccy.item.remove",
-        "title": "删除该交易对"
       }
     ],
     "menus": {
@@ -158,16 +116,6 @@
         {
           "command": "super-stock-favorite.add",
           "when": "view == super-stock-favorite",
-          "group": "navigation"
-        },
-        {
-          "command": "super-stock-favorite-digiccy.order",
-          "when": "view == super-stock-favorite-digiccy",
-          "group": "navigation"
-        },
-        {
-          "command": "super-stock-favorite-digiccy.add",
-          "when": "view == super-stock-favorite-digiccy",
           "group": "navigation"
         }
       ],
@@ -183,18 +131,6 @@
         {
           "command": "super-stock-favorite.item.remove",
           "when": "view == super-stock-favorite"
-        },
-        {
-          "command": "super-stock-favorite-digiccy.item.setHighWarn",
-          "when": "view == super-stock-favorite-digiccy"
-        },
-        {
-          "command": "super-stock-favorite-digiccy.item.setLowWarn",
-          "when": "view == super-stock-favorite-digiccy"
-        },
-        {
-          "command": "super-stock-favorite-digiccy.item.remove",
-          "when": "view == super-stock-favorite-digiccy"
         }
       ]
     }
@@ -206,7 +142,7 @@
     "typescript": "^3.5.1"
   },
   "dependencies": {
-    "iconv-lite": "^0.5.0",
+    "iconv-lite": "^0.5.2",
     "string-width": "^4.2.0"
   }
 }

@@ -34,9 +34,12 @@ export class StockResource {
   async getFavorites(order: number): Promise<Array<Stock>> {
     const config = workspace.getConfiguration().get('super-stock.favorite',{});
     const result = await sinaApi(config);
-    return result.sort(({info:{changeRate:a=0 }}, {info:{changeRate: b=0}})=>{
-    return (+a >= +b) ? order * 1: order * -1;
-    });
+    if(order !== 0){
+      return result.sort(({info:{changeRate:a=0 }}, {info:{changeRate: b=0}})=>{
+        return (+a >= +b) ? order * 1: order * -1;
+        });
+    }
+    return result;
   }
 }
 
@@ -47,23 +50,22 @@ export interface StockConfig{
 export class Stock extends TreeItem {
   info: StockInfo;
   constructor(info: StockInfo) {
-    super(`${fillString(info.name, 10)} ${fillString(info.changeRate + '%', 8, false)} ${fillString(info.now, 10, false)}`);
+    super(`${+info.changeAmount >= 0 ? '❤️': '🟢'} ${fillString(info.name, 10)} ${fillString(info.changeRate + '%', 8, false)} ${fillString(info.now, 10, false)}`);
     this.info = info;
-
     this.tooltip = `
  公司:       ${info.name}
  代码:       ${info.code}
- 单位:       ${info.unit}
  成交量:   ${info.volume}股${info.amount ?  `\n 成交额:   ${info.amount}`: ''}${info.highStop ? `\n 涨停:       ${info.highStop}`: ''}${info.lowStop ? `\n 跌停:       ${info.lowStop}`: ''}
- ---------------------
+ -------------------------
  现价:       ${info.now}
  涨跌幅:   ${info.changeRate}%
  涨跌额:   ${info.changeAmount}
  今开:       ${info.open}
- 最高:       ${info.high}
- 最低:       ${info.low}
  昨收:       ${info.lastClose}
----------------------
+ -------------------------
+ 最高:       ${info.high}   ${info.highRate}%
+ 最低:       ${info.low}   ${info.lowRate}%
+ -------------------------
  低价警报:  ${!isNaN(+info.lowWarn)?info.lowWarn :'-'}
  高价警报:  ${!isNaN(+info.highWarn)?info.highWarn :'-'}
     `;

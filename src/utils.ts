@@ -1,35 +1,13 @@
-import { QuickPickItem } from 'vscode';
 import * as https from 'https';
 import * as iconv from 'iconv-lite';
 import * as stringWidth from 'string-width';
 import { isArray } from 'util';
-import { Stock, StockConfig, StockResource } from './stockResource';
-import { DigiccyConfig, Digiccy } from './digiccyResource';
-import { promises } from 'dns';
+import { Stock, StockConfig } from './stockResource';
 
-const stockMarket: { [key: string]: QuickPickItem } = {
-  '沪股': {
-    label: '沪股',
-    detail: 'sh'
-  },
-  '深股': {
-    label: '深股',
-    detail: 'sz'
-  },
-  '港股': {
-    label: '港股',
-    detail: 'hk'
-  },
-  '美股': {
-    label: '美股',
-    detail: 'gb_'
-  }
-};
-
-export { stockMarket };
 
 const httpRequest = async (url: string): Promise<any> => {
   return new Promise((resolve, reject) => {
+    
     https.get(url, res => {
       let chunks: Array<Buffer> = [];
       res.on('data', chunk => chunks.push(chunk));
@@ -49,52 +27,6 @@ const httpRequest = async (url: string): Promise<any> => {
     });
   });
 };
-
-export function huobiApi(digiccyConfig: DigiccyConfig): Promise<Array<Digiccy>> {
-  const url = 'https://api.huobi.pro/market/detail/merged?symbol=';
-  const promiseArr: Array<Promise<object>> = [];
-  const symbols = Object.keys(digiccyConfig);
-
-  for (const symbol of symbols) {
-    promiseArr.push(httpRequest(`${url}${symbol}`));
-  }
-
-  return new Promise(async (resolve, reject) => {
-    const promiseResult: Array<any> = await await Promise.all(promiseArr).catch(e => { reject(e.message); }) || [];
-    const resultArr: Array<Digiccy> = [];
-    for (const i in promiseResult) {
-      const { status, tick } = JSON.parse(promiseResult[i]);
-      const code = symbols[i];
-      let DigiccyConfig = digiccyConfig[code];
-      if (!isArray(DigiccyConfig)) { DigiccyConfig = ['-', '-']; }
-      if (DigiccyConfig.length < 2) { DigiccyConfig.concat(['-', '-']); }
-
-      if (status === 'ok') {
-        const resultDigiccy: DigiccyInfo = {
-          code,
-          lowWarn: new Number(DigiccyConfig[0]).toFixed(2),
-          highWarn: new Number(DigiccyConfig[1]).toFixed(2),
-          open: NumberCn(tick.open, 6, false),
-          now: NumberCn(tick.close, 6, false),
-          lastClose: NumberCn(tick.open, 6, false),
-          high: NumberCn(tick.high, 6, false),
-          low: NumberCn(tick.low, 6, false),
-          amount: NumberCn(tick.amount, 2, true),
-          bid1: NumberCn(tick.bid[0], 6, false),
-          bid1Vol: NumberCn(tick.bid[1], 4, true),
-          ask1: NumberCn(tick.ask[0], 6, false),
-          ask1Vol: NumberCn(tick.ask[1], 4, true),
-        };
-        const changeAmount = Math.abs(+tick.close - +tick.open);
-        const changeSign = (+tick.close - +tick.open) >= 0 ? '+' : '-';
-        resultDigiccy.changeAmount = changeSign + NumberCn(changeAmount, 2, false),
-          resultDigiccy.changeRate = changeSign + NumberCn(changeAmount/+tick.open * 100, 2, false),
-          resultArr.push(new Digiccy(resultDigiccy));
-      }
-      resolve(resultArr);
-    }
-  });
-}
 
 
 export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
@@ -121,7 +53,6 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
           resultStock = {
             name: params[0],
             code,
-            unit: 'cny',
             lowWarn: NumberCn(StockConfig[0], 2, false),
             highWarn: NumberCn(StockConfig[1], 2, false),
             open: NumberCn(params[1], 2, false),
@@ -133,12 +64,13 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             low: NumberCn(params[5], 2, false),
             volume: NumberCn(params[8], 2),
             amount: NumberCn(params[9], 2),
+            changeAmount:'0',
+            changeRate: '0',
           };
         } else if (/^hk/.test(code)) {
           resultStock = {
             name: params[1],
             code,
-            unit: 'hkd',
             lowWarn: NumberCn(StockConfig[0], 2, false),
             highWarn: NumberCn(StockConfig[1], 2, false),
             open: NumberCn(params[2], 2, false),
@@ -148,12 +80,13 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             low: NumberCn(params[5], 2, false),
             volume: NumberCn(params[12], 2),
             amount: NumberCn(params[11], 2),
+            changeAmount:'0',
+            changeRate: '0',
           };
         } else if (/^gb_/.test(code)) {
           resultStock = {
             name: params[0],
             code,
-            unit: 'usd',
             lowWarn: NumberCn(StockConfig[0], 2, false),
             highWarn: NumberCn(StockConfig[1], 2, false),
             open: NumberCn(params[5], 2, false),
@@ -162,15 +95,17 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             high: NumberCn(params[6], 2, false),
             low: NumberCn(params[7], 2, false),
             volume: NumberCn(params[10], 2),
+            changeAmount:'0',
+            changeRate: '0',
           };
         }
         if (resultStock !== undefined) {
-          const { lastClose, now } = resultStock;
-          const changeAmount = Math.abs(+now - +lastClose);
-          const changeSign = (+now - +lastClose) >= 0 ? '+' : '-';
-          resultStock.changeAmount = changeSign + NumberCn(changeAmount, 2, false),
-            resultStock.changeRate = changeSign + NumberCn((changeAmount) / +lastClose * 100, 2, false),
-            resultArr.push(new Stock(resultStock));
+          const { lastClose, now, high, low } = resultStock;
+          resultStock.changeAmount = ((+now - +lastClose) >= 0 ? '+' : '-') + NumberCn(Math.abs(+now - +lastClose), 2, false),
+          resultStock.changeRate = ((+now - +lastClose) >= 0 ? '+' : '-') + NumberCn((Math.abs(+now - +lastClose)) / +lastClose * 100, 2, false),
+          resultStock.highRate = ((+high - +lastClose) >= 0 ? '+' : '-') + NumberCn((Math.abs(+high - +lastClose)) / +lastClose * 100, 2, false),
+          resultStock.lowRate = ((+low - +lastClose) >= 0 ? '+' : '-') + NumberCn((Math.abs(+low - +lastClose)) / +lastClose * 100, 2, false),
+          resultArr.push(new Stock(resultStock));
         }
       }// valid stock code
     }
@@ -199,7 +134,6 @@ export function fillString(source: string, length: number, left = true): string 
 export interface StockInfo {
   name: string;
   code: string;
-  unit: string;
   lowWarn: string;
   highWarn: string;
   open: string;
@@ -211,26 +145,10 @@ export interface StockInfo {
   amount?: string; //成交额
   highStop?: string;
   lowStop?: string;
-  changeAmount?: string;
-  changeRate?: string;
-}
-
-export interface DigiccyInfo {
-  code: string;
-  lowWarn: string;
-  highWarn: string;
-  open: string;
-  lastClose: string;
-  now: string;
-  high: string;
-  low: string;
-  amount: string;
-  bid1: string;
-  bid1Vol: string;
-  ask1: string;
-  ask1Vol: string;
-  changeAmount?: string;
-  changeRate?: string;
+  changeAmount: string;
+  changeRate: string;
+  highRate?: string;
+  lowRate?: string;
 }
 
 export function NumberCn(inputNumber: number = 0, fixNumber: number = 2, format = true): string {

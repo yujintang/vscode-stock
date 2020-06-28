@@ -1,6 +1,6 @@
 import {window, EventEmitter, Event, TreeDataProvider, TreeItem } from 'vscode';
 import { StockResource, Stock } from './stockResource';
-import { sinaApi, stockMarket, StockInfo } from './utils';
+import { sinaApi, StockInfo } from './utils';
 
 export class StockProvider implements TreeDataProvider<Stock>{
 
@@ -12,7 +12,7 @@ export class StockProvider implements TreeDataProvider<Stock>{
 
   constructor(resource: StockResource) {
     this.resource = resource;
-    this.order = 1;
+    this.order = 0;
   }
 
   getTreeItem(element: Stock): TreeItem {
@@ -36,52 +36,39 @@ export class StockProvider implements TreeDataProvider<Stock>{
   }
 
   changeOrder(): void {
-    this.order = this.order * -1;
+    if(this.order === 1){
+      this.order = -1;
+    }else{
+      this.order = this.order + 1;
+    }
     this._onDidChangeTreeData.fire();
   }
 
   async addFavorite(){
-    const quickPick = await window.createQuickPick();
-      quickPick.items = Object.keys(stockMarket).map(label => ({ label }));
-      quickPick.show();
-      quickPick.onDidChangeSelection(async (market) => {
+    const res =await window.showInputBox({
+      value: '',
+      prompt: `添加股票到自选, 使用【,】添加多个！`,
+      placeHolder: 'Add Stock To Favorite',
+    });
 
-        const {label, detail } = stockMarket[market[0].label];
-        
-        const res =await window.showInputBox({
-          value: detail,
-          valueSelection: [5, -1],
-          prompt: `添加${label}到自选, 使用【,】添加多个！`,
-          placeHolder: 'Add Stock To Favorite',
-          validateInput: (inputCode: string) => {
-            const codeArray = inputCode.split(/[\W]/);
-            for(const code of codeArray){
-              if(code !== ''){
-                if(!(new RegExp(`^${detail}\\w+`)).test(code)){
-                  return `${label}代码输入错误`;
-                }
-              }
-            }
-          },
-        });
-
-        if (res !== undefined) {
-          const codeArray = res.split(/[\W]/);
-          const newStock:{[key:string]: Array<string>} = {};
-          for(const stock of codeArray){
-            if(stock !== ''){
-              newStock[`${stock}`] =  ['-', '-'];
-            }
-          }
-          const result = await sinaApi(newStock);
-          result.forEach(stockInfo=>{
-            if (stockInfo) {
-              this.resource.updateConfig(newStock);
-              this._onDidChangeTreeData.fire();
-            }
-          });
+    if (res !== undefined) {
+      const codeArray = res.split(/[,|，]/);
+      const newStock:{[key:string]: Array<string>} = {};
+      for(const stock of codeArray){
+        if(stock !== ''){
+          newStock[`${stock.trim()}`] =  ['-', '-'];
+        }
+      }
+      const result = await sinaApi(newStock);
+      const insertStockObj: { [key: string]: any[] }= {};
+      result.forEach(stockInfo=>{
+        if (stockInfo) {
+          insertStockObj[`${stockInfo.info.code}`] = ['-', '-'];
         }
       });
+      this.resource.updateConfig(insertStockObj);
+      this._onDidChangeTreeData.fire();
+    }
   }
 
   async setHighWarn(stock: {info: StockInfo}){
