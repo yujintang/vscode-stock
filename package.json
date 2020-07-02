@@ -1,6 +1,6 @@
 {
   "name": "super-stock",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "A股｜港股｜美股｜其他 实时查看行情, 高低价报警提示等内容",
   "author": "yujintang <shanquan54@gmail.com>",
   "repository": {
@@ -10,11 +10,10 @@
   "license": "MIT",
   "publisher": "yujintang",
   "engines": {
-    "vscode": "^1.41.0"
+    "vscode": "^1.40.0"
   },
   "keywords": [
     "stock",
-    "money",
     "股票"
   ],
   "categories": [
@@ -46,18 +45,6 @@
         "super-stock.favorite": {
           "type": "object",
           "default": {
-            "sh000001": [
-              "-",
-              "-"
-            ],
-            "hkHSI": [
-              "-",
-              "-"
-          ],
-          "gb_$dji": [
-              "-",
-              "-"
-          ]
           },
           "description": "your favorite symbols, Key is symbol code, value[0] is lowWarn, value[1] is highWarn"
         },

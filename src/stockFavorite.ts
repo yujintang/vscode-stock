@@ -56,7 +56,41 @@ export class StockProvider implements TreeDataProvider<Stock>{
       const newStock:{[key:string]: Array<string>} = {};
       for(const stock of codeArray){
         if(stock !== ''){
-          newStock[`${stock.trim()}`] =  ['-', '-'];
+          let tempStock = stock.trim().toLowerCase();
+          const split = tempStock.split('.');
+          switch(split[1]){
+            case 'us':
+              tempStock = `gb_${split[0]}`;
+              break;
+            case 'sh':
+              tempStock = `sh${split[0]}`;
+              break;
+            case 'sz':
+                tempStock = `sz${split[0]}`;
+                break;
+            case 'hk':
+                  tempStock = `hk${split[0]}`;
+                  break;
+            default:
+              break;
+          }
+          switch(split[0]){
+            case 'us':
+              tempStock = `gb_${split[1]}`;
+              break;
+            case 'sh':
+              tempStock = `sh${split[1]}`;
+              break;
+            case 'sz':
+                tempStock = `sz${split[1]}`;
+                break;
+            case 'hk':
+                  tempStock = `hk${split[1]}`;
+                  break;
+            default:
+              break;
+          }
+          newStock[`${tempStock}`] =  ['-', '-'];
         }
       }
       const result = await sinaApi(newStock);
