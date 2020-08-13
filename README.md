@@ -44,7 +44,7 @@
 
 - super-stock.favorite: Key 为股票代码, value[0]为低报警价、value[1]为高报警价
 - super-stock.interval: 股价刷新率 默认 2s
-
+- super-stock.emoji: 股价涨跌对应的emoji表情，默认为 ["🍾️", "🍜"], 赢了香槟美女，输了关灯吃面 😂😂😂
 
 
 ```json
@@ -63,6 +63,10 @@
             "-"
         ]
     },
-    "super-stock.interval":2
+    "super-stock.interval":2,
+        "super-stock.emoji": [
+        "🍾️",
+        "🍜"
+    ]
 }
 ```

@@ -1,6 +1,6 @@
 {
   "name": "super-stock",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A股｜港股｜美股｜其他 实时查看行情, 高低价报警提示等内容",
   "author": "yujintang <shanquan54@gmail.com>",
   "repository": {
@@ -52,6 +52,11 @@
           "type": "number",
           "default": 2,
           "description": "refresh symbol price how many second, at least 2"
+        },
+        "super-stock.emoji": {
+          "type": "array",
+          "default": ["🍾️", "🍜"],
+          "description": "stock opsition gain and loss emoji in the front"
         }
       }
     },

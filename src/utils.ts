@@ -1,4 +1,5 @@
 import * as https from 'https';
+import { workspace } from 'vscode';
 import * as iconv from 'iconv-lite';
 import * as stringWidth from 'string-width';
 import { isArray } from 'util';
@@ -30,6 +31,8 @@ const httpRequest = async (url: string): Promise<any> => {
 
 
 export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
+  const config = workspace.getConfiguration();
+  const emojiConfig = config.get('super-stock.emoji', ["🍾️", "🍜"]);
 
   const url = 'https://hq.sinajs.cn/list=' + Object.keys(stockConfig).join(',');
 
@@ -66,6 +69,7 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             amount: NumberCn(params[9], 2),
             changeAmount:'0',
             changeRate: '0',
+            emoji: emojiConfig,
           };
         } else if (/^hk/.test(code)) {
           resultStock = {
@@ -82,6 +86,7 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             amount: NumberCn(params[11], 2),
             changeAmount:'0',
             changeRate: '0',
+            emoji: emojiConfig
           };
         } else if (/^gb_/.test(code)) {
           resultStock = {
@@ -97,6 +102,7 @@ export function sinaApi(stockConfig: StockConfig): Promise<Array<Stock>> {
             volume: NumberCn(params[10], 2),
             changeAmount:'0',
             changeRate: '0',
+            emoji: emojiConfig
           };
         }
         if (resultStock !== undefined) {
@@ -149,6 +155,7 @@ export interface StockInfo {
   changeRate: string;
   highRate?: string;
   lowRate?: string;
+  emoji: string[];
 }
 
 export function NumberCn(inputNumber: number = 0, fixNumber: number = 2, format = true): string {
